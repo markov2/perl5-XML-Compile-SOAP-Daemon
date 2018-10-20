@@ -179,7 +179,7 @@ sub lwp_make_response($$$$;$)
     }
     else
     {   $s = "[$status] $body";
-        $response->header(Content_Type => 'text/plain');
+        $response->header('Content-Type' => 'text/plain');
     }
 
     $postproc->($request, $response, $status, \$s)

@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 # The versions of the following packages are reported to help understanding
 # the environment in which the tests are run.  This is certainly not a
@@ -46,6 +46,9 @@ my $has_lwp = $@ ? 0 : 1;
 eval "require CGI";
 my $has_cgi = $@ ? 0 : 1;
 
+eval "require Mojolicious";
+my $has_mojo = $@ ? 0 : 1;
+
 if($has_net_server && $has_lwp)
 {   require_ok('XML::Compile::SOAP::Daemon::NetServer');
 }
@@ -58,4 +61,11 @@ if($has_cgi)
 }
 else
 {   ok(1, 'CGI not installed');
+}
+
+if($has_mojo)
+{   require_ok('XML::Compile::SOAP::Daemon::Mojo');
+}
+else
+{   ok(1, 'Mojolicious not installed');
 }
