@@ -359,7 +359,11 @@ WSDLs into one server, simply by calling this method repeatedly.
 
 You can also specify %options for M<XML::Compile::WSDL11::operations()>.
 Those parameters may be needed to distinguish between the test-server
-and the live-server, provided protocol support and such.
+and the production server, provided protocol support and such.
+
+The %options can also contain parameters for M<XML::Compile::SOAP::Operation::compileHandler()>
+(and its SOAP11 and SOAP12 extensions), which in turn will pass it all over the place.
+For instance, you can pass C<interpret_nillable_as_optional>.
 
 =option  callbacks HASH
 =default callbacks {}
@@ -389,14 +393,14 @@ M<XML::Compile::WSDL11::operations()>.
 
 sub operationsFromWSDL($@)
 {   my ($self, $wsdl, %args) = @_;
-    my %callbacks  = $args{callbacks} ? %{$args{callbacks}} : ();
+    my $callbacks  = delete $args{callbacks} || {};
     my %names;
 
-    my $default_cb = $args{default_callback};
+    my $default_cb = delete $args{default_callback};
     my $wsa_input  = $self->{wsa_input};
     my $wsa_output = $self->{wsa_output};
 
-    my $ops = $args{operations};
+    my $ops = delete $args{operations};
     my @ops = $ops ? @$ops : $wsdl->operations(%args);
     @ops or return;   # none selected
 
@@ -406,7 +410,7 @@ sub operationsFromWSDL($@)
             if $names{$name}++;
 
         my $code;
-        if(my $callback = $callbacks{$name})
+        if(my $callback = $callbacks->{$name})
         {   UNIVERSAL::isa($callback, 'CODE')
                or error __x"callback {name} must provide a CODE ref"
                     , name => $name;
@@ -419,7 +423,7 @@ sub operationsFromWSDL($@)
             my $handler = $default_cb
               || sub { $_[0]->faultNotImplemented($name) };
 
-            $code = $op->compileHandler(callback => $handler);
+            $code = $op->compileHandler(callback => $handler, %args);
         }
 
         $self->addHandler($name, $op, $code);
@@ -435,11 +439,8 @@ sub operationsFromWSDL($@)
 
     info __x"added {nr} operations from WSDL", nr => (scalar @ops);
 
-    if(keys %names != keys %callbacks)
-    {   $names{$_}
-            or warning __x"no operation for callback handler `{name}'",name=>$_
-                for sort keys %callbacks;
-    }
+    warning __x"no operation for callback handler `{name}'", name=> $_
+        for sort grep ! $names{$_}, keys %$callbacks;
 
     $self;
 }
