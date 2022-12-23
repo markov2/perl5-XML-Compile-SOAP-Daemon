@@ -4,7 +4,9 @@
 TODO:
   . trace incoming and outgoing messages server-side
 
-version 3.15:
+version 3.16:
+
+version 3.15: Fri 23 Dec 11:46:13 CET 2022
 
 	Fixes:
 	- ::CGI respect nph for sending WSDLs [Immo Goltz]

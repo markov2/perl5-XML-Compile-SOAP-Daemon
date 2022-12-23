@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 
 use 5.010;
 
-my $version = '3.15';
+my $version = '3.16';
 
 my $devel   = exists $ENV{MARKOV_DEVEL};
 
