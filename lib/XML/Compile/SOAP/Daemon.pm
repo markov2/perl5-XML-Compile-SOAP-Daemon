@@ -416,13 +416,11 @@ sub operationsFromWSDL($@)
                     , name => $name;
 
             trace __x"add handler for operation `{name}'", name => $name;
-            $code = $op->compileHandler(callback => $callback);
+            $code = $op->compileHandler(callback => $callback, %args);
         }
         else
         {   trace __x"add stub handler for operation `{name}'", name => $name;
-            my $handler = $default_cb
-              || sub { $_[0]->faultNotImplemented($name) };
-
+            my $handler = $default_cb || sub { $_[0]->faultNotImplemented($name) };
             $code = $op->compileHandler(callback => $handler, %args);
         }
 
@@ -431,6 +429,7 @@ sub operationsFromWSDL($@)
         if($op->can('wsaAction'))
         {   my $in  = $op->wsaAction('INPUT');
             $wsa_input->{$name}  = $in if defined $in;
+
             my $out = $op->wsaAction('OUTPUT');
             $wsa_output->{$name} = $out if defined $out;
         }
